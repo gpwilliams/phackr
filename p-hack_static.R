@@ -1,6 +1,7 @@
 # static plot ----
 
 library(tidyverse)
+library(scales)
 library(here)
 
 source(here("functions.R"))
@@ -26,7 +27,10 @@ p_hack_rates <- ggplot(hacked_p, aes(x = additional_tests, y = p_vals)) +
   geom_line() +
   geom_point() +
   scale_x_continuous(breaks = seq(0, 30, 5)) +
-  scale_y_continuous(breaks = seq(0, 0.5, 0.05), labels = scales::percent) +
+  scale_y_continuous(
+    breaks = seq(0, 1, 0.05), 
+    labels = percent(seq(0, 1, 0.05))
+  ) +
   labs(
     x = "Number of Additional Blocks of 10 Participants Tested",
     y = "Percentage of False Positives",

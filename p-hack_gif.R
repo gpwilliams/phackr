@@ -2,6 +2,7 @@ library(tidyverse)
 library(here)
 library(gganimate)
 library(gifski)
+library(scales)
 
 source(here("functions.R"))
 
@@ -20,17 +21,23 @@ for(i in seq_along(hacked_p$additional_tests)) {
 
 # make animation ----
 
-sim_contrasts <- sim_contrasts %>%
-  group_by(contrast) %>%
-  mutate(sig = cumsum(p.value < .05)/1000)
-
 sim_animation <- 
   ggplot(hacked_p, aes(x = additional_tests, y = p_vals, group = 1)) +
   geom_line() +
   geom_point() +
   theme_bw() +
+  scale_x_continuous(breaks = seq(0, 30, 5)) +
+  scale_y_continuous(
+    breaks = seq(0, 1, 0.05), 
+    labels = percent(seq(0, 1, 0.05))
+  ) +
   geom_hline(yintercept = 0.05, linetype = 2, size = 1) +
-  labs(title = "Simulation Count: {frame}", x = "Additional Tests", y = "False Positive") +
+  labs(
+    title = "False Positive Rates from Uncorrected Sequential Testing.",
+    subtitle = "Simulation Count: {frame}", 
+    x = "Number of Additional Blocks of 10 Participants Tested", 
+    y = "Percentage of False Positives"
+  ) +
   transition_manual(additional_tests, cumulative = TRUE) +
   ease_aes("linear")
 
