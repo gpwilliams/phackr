@@ -1,6 +1,3 @@
-# simulate data
-library(tidyverse)
-
 # sample data and make a tibble with DV and ID based on input group sample size
 # this is fixed at means of 100 and sd of 15 for each group
 sample_groups <- function(n_group){
@@ -11,7 +8,7 @@ sample_groups <- function(n_group){
     dv = c(group_one, group_two),
     id = c(rep("group_one", n_group),
            rep("group_two", n_group)
-           )
+    )
   )
 }
 
@@ -39,31 +36,3 @@ p_hack <- function(additions = 1, original_n = 30, additional_n = 10){
   }
   p_val
 }
-
-# sample the data at various numbers of additional tests
-# then run p-hacked tests
-hacked_p <- tibble(
-  additional_tests = 0:30, 
-  p_vals = numeric(31)
-)
-n <- 1000
-
-for(i in seq_along(hacked_p$additional_tests)) {
-  ps <- replicate(n = n, p_hack(hacked_p$additional_tests[i]))
-  hacked_p$p_vals[i] <- mean(ps < .05) 
-}
-
-p_hack_rates <- ggplot(hacked_p, aes(x = additional_tests, y = p_vals)) +
-  geom_line() +
-  geom_point() +
-  scale_x_continuous(breaks = seq(0, 30, 5)) +
-  scale_y_continuous(breaks = seq(0, 0.5, 0.05), labels = scales::percent) +
-  labs(
-    x = "Number of Additional Blocks of 10 Participants Tested",
-    y = "Percentage of False Positives",
-    title = "False Positive Rates from Uncorrected Sequential Testing.",
-    subtitle = paste(n, "Iterations Per Test.")
-  ) +
-  theme_bw()
-
-ggsave("p_hack_rates.png", p_hack_rates, height = 8, width = 12)
